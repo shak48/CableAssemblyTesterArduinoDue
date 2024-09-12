@@ -9,17 +9,18 @@ using Timer = System.Timers.Timer;
 using System.Windows;
 using System.IO.Ports;
 using CableAssemblyTesterArduinoDue.Commands;
+using CableAssemblyTesterArduinoDue.Services;
 
 namespace CableAssemblyTesterArduinoDue.ViewModels
 {
 	public class CableTesterViewModel : INotifyPropertyChanged, IDisposable
 	{
+		private readonly ISerialPortService _serialPortService;
 		private bool _isConnected;
 		private string _connectButtonText = "Connect";
 		private string _displayText = "";
 		private string _selectedComPort = string.Empty;
 		private readonly Timer _refreshTimer;
-		private SerialPort? _serialPort;
 		private string _receivedDataBuffer = "";
 
 		public ObservableCollection<string> AvailableComPorts { get; }
@@ -57,8 +58,11 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 		public ICommand TestCommand { get; }
 		public ICommand VersionCommand { get; }
 
-		public CableTesterViewModel()
+		public CableTesterViewModel(ISerialPortService serialPortService)
 		{
+			_serialPortService = serialPortService;
+			_serialPortService.DataReceived += SerialPortService_DataReceived;
+
 			AvailableComPorts = new ObservableCollection<string>();
 			ConnectCommand = new RelayCommand(ExecuteConnect, () => !string.IsNullOrEmpty(SelectedComPort));
 			SendCommand = new RelayCommand(ExecuteSend, () => _isConnected);
@@ -83,7 +87,7 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 				Application.Current.Dispatcher.Invoke(() =>
 				{
 					AvailableComPorts.Clear();
-					foreach (var port in SerialPort.GetPortNames())
+					foreach (var port in _serialPortService.GetAvailablePorts())
 					{
 						AvailableComPorts.Add(port);
 					}
@@ -95,75 +99,36 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 		{
 			if (!_isConnected)
 			{
-				try
+				_isConnected = _serialPortService.Connect(SelectedComPort, 9600);
+				if (_isConnected)
 				{
-					_serialPort = new SerialPort(SelectedComPort, 9600, Parity.None, 8, StopBits.One);
-					_serialPort.DataReceived += SerialPort_DataReceived;
-					_serialPort.Open();
-					_isConnected = true;
 					ConnectButtonText = "Disconnect";
 					AppendToDisplay($"Connected to {SelectedComPort} at 9600 baud");
 				}
-				catch (Exception ex)
+				else
 				{
-					AppendToDisplay($"Error connecting to {SelectedComPort}: {ex.Message}");
-					_isConnected = false;
+					AppendToDisplay($"Error connecting to {SelectedComPort}");
 				}
 			}
 			else
 			{
-				DisconnectSerialPort();
+				_serialPortService.Disconnect();
+				_isConnected = false;
+				ConnectButtonText = "Connect";
+				AppendToDisplay("Disconnected");
 			}
 			OnPropertyChanged(nameof(IsNotConnected));
-		}
-
-		private void DisconnectSerialPort()
-		{
-			try
-			{
-				if (_serialPort != null)
-				{
-					_serialPort.DataReceived -= SerialPort_DataReceived;
-					_serialPort?.Close();
-					_serialPort?.Dispose();
-					_serialPort = null;
-					_isConnected = false;
-					ConnectButtonText = "Connect";
-					AppendToDisplay("Disconnected");
-				}
-
-			}
-			catch (Exception ex)
-			{
-				AppendToDisplay($"Error disconnecting: {ex.Message}");
-			}
-		}
-
-		private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-		{
-			if (e.EventType == SerialData.Chars && _serialPort != null)
-			{
-				try
-				{
-					string indata = _serialPort.ReadExisting();
-					Application.Current.Dispatcher.Invoke(() => AppendToDisplay(indata, true));
-				}
-				catch (Exception ex)
-				{
-					Application.Current.Dispatcher.Invoke(() => AppendToDisplay($"Error reading data: {ex.Message}", true));
-				}
-			}
 		}
 
 		private void ExecuteSend() => SendData("show");
 
 		private void SendData(string data)
 		{
-			if (_isConnected && _serialPort?.IsOpen == true)
+			if (_isConnected)
 			{
 				try
 				{
-					_serialPort.WriteLine(data);
+					_serialPortService.WriteData(data);
 					AppendToDisplay($"Sent: {data}");
 				}
 				catch (Exception ex)
@@ -181,28 +146,10 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 
 		private void ExecuteTest() => SendData("test");
 
-		//private void ExecuteVersion(string data)
-		//{
-		//	if (_isConnected && _serialPort?.IsOpen == true)
-		//	{
-		//		try
-		//		{
-		//			_serialPort.WriteLine(data);
-		//			AppendToDisplay($"Sent: {data}");
-		//		}
-		//		catch (Exception ex)
-		//		{
-		//			AppendToDisplay($"Error sending data: {ex.Message}");
-		//		}
-		//	}
-		//	else
-		//	{
-		//		AppendToDisplay("Cannot send data: Not connected");
-		//	}
-		//}/
-
-
-
+		private void SerialPortService_DataReceived(object? sender, string e)
+		{
+			Application.Current.Dispatcher.Invoke(() => AppendToDisplay(e, true));
+		}
 
 		private void AppendToDisplay(string message, bool isReceived = false)
 		{
@@ -243,7 +190,8 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 		{
 			_refreshTimer?.Stop();
 			_refreshTimer?.Dispose();
-			DisconnectSerialPort();
+			_serialPortService.Disconnect();
+			_serialPortService.DataReceived -= SerialPortService_DataReceived;
 		}
 	}
 }

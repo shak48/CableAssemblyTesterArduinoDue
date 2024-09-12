@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows;
 using System.Reflection;
+using CableAssemblyTesterArduinoDue.Services;
+using CableAssemblyTesterArduinoDue.ViewModels;
 
 namespace CableAssemblyTesterArduinoDue
 {
@@ -14,9 +16,10 @@ namespace CableAssemblyTesterArduinoDue
             var version = Assembly.GetExecutingAssembly().GetName().Version;
             // Set the Title with version info
             Title = $"Cable Assembly Tester - v{(version?.Major ?? 0)}.{(version?.Minor ?? 0)}.{(version?.Build ?? 0)}.{(version?.Revision ?? 0)}";
-
-            // Optionally, set DataContext if needed for the rest of the application
-            DataContext = this;
-        }
+			// Create the ViewModel and set it as the DataContext for CableTesterView
+			var serialPortService = new SerialPortService();
+			var viewModel = new CableTesterViewModel(serialPortService);
+			CableTesterViewControl.DataContext = viewModel;
+		}
     }
 }
