@@ -1,0 +1,47 @@
+<UserControl x:Class="CableAssemblyTesterArduinoDue.Views.CableTesterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CableAssemblyTesterArduinoDue.Views"
+             xmlns:viewModels="clr-namespace:CableAssemblyTesterArduinoDue.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+	<UserControl.DataContext>
+		<viewModels:CableTesterViewModel/>
+	</UserControl.DataContext>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<StackPanel Grid.Row="0" Orientation="Horizontal">
+			<ComboBox ItemsSource="{Binding AvailableComPorts}"
+					  SelectedItem="{Binding SelectedComPort}"
+					  IsEnabled="{Binding IsNotConnected}"
+					  Width="120" Height="30" Margin="5"/>
+			<Button Content="{Binding ConnectButtonText}"
+                    Command="{Binding ConnectCommand}"
+                    Width="100" Height="30" Margin="5"/>
+			<Button Content="Send"
+                    Command="{Binding SendCommand}"
+                    Width="100" Height="30" Margin="5"/>
+            <Button Content="Test"
+                    Command="{Binding TestCommand}"
+                    Width="100" Height="30" Margin="5"/>
+            <Button Content="Version"
+                    Command="{Binding VersionCommand}"
+                    Width="100" Height="30" Margin="5"/>
+        </StackPanel>
+
+		<TextBox Grid.Row="1"
+                 Text="{Binding DisplayText, Mode=TwoWay}"
+                 IsReadOnly="True"
+                 TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto"/>
+
+	</Grid>
+</UserControl>
