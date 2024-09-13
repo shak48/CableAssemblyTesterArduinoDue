@@ -8,40 +8,35 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
-	<!--<UserControl.DataContext>
-		<viewModels:CableTesterViewModel/>
-	</UserControl.DataContext>-->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="*"/>
-		</Grid.RowDefinitions>
-
-		<StackPanel Grid.Row="0" Orientation="Horizontal">
-			<ComboBox ItemsSource="{Binding AvailableComPorts}"
-					  SelectedItem="{Binding SelectedComPort}"
-					  IsEnabled="{Binding IsNotConnected}"
-					  Width="120" Height="30" Margin="5"/>
-			<Button Content="{Binding ConnectButtonText}"
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <ComboBox ItemsSource="{Binding AvailableComPorts}"
+                      SelectedItem="{Binding SelectedComPort}"
+                      IsEnabled="{Binding IsNotConnected}"
+                      Width="120" Height="30" Margin="5"/>
+            <Button Content="{Binding ConnectButtonText}"
                     Command="{Binding ConnectCommand}"
                     Width="100" Height="30" Margin="5"/>
-			<Button Content="Send"
+            <ComboBox ItemsSource="{Binding AvailableCommands}"
+          SelectedItem="{Binding SelectedCommand}"
+          DisplayMemberPath="Name"
+          SelectedValuePath="Command"
+          IsEnabled="{Binding IsConnected}"
+          Width="120" Height="30" Margin="5"/>
+            <Button Content="Send"
                     Command="{Binding SendCommand}"
-                    Width="100" Height="30" Margin="5"/>
-            <Button Content="Test"
-                    Command="{Binding TestCommand}"
-                    Width="100" Height="30" Margin="5"/>
-            <Button Content="Version"
-                    Command="{Binding VersionCommand}"
                     Width="100" Height="30" Margin="5"/>
         </StackPanel>
 
-		<TextBox Grid.Row="1"
+        <TextBox Grid.Row="1"
                  Text="{Binding DisplayText, Mode=TwoWay}"
                  IsReadOnly="True"
                  TextWrapping="Wrap"
                  VerticalScrollBarVisibility="Auto"/>
-
-	</Grid>
+    </Grid>
 </UserControl>

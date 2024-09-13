@@ -1,0 +1,14 @@
+﻿[
+  {
+    "Name": "Show Version",
+    "Command": "*IDN?"
+  },
+  {
+    "Name": "Run Test",
+    "Command": "test"
+  },
+  {
+    "Name": "Show Status",
+    "Command": "show"
+  }
+]

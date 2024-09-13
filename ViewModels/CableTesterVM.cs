@@ -10,6 +10,12 @@ using System.Windows;
 using System.IO.Ports;
 using CableAssemblyTesterArduinoDue.Commands;
 using CableAssemblyTesterArduinoDue.Services;
+using Newtonsoft.Json;
+using System.IO;
+using CableAssemblyTesterArduinoDue.Properties;
+using System.Configuration;
+
+
 
 namespace CableAssemblyTesterArduinoDue.ViewModels
 {
@@ -25,6 +31,19 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 
 		public ObservableCollection<string> AvailableComPorts { get; }
 
+		private ObservableCollection<string> _availableCommands;
+		public ObservableCollection<string> AvailableCommands
+		{
+			get => _availableCommands;
+			set => SetProperty(ref _availableCommands, value);
+		}
+
+		private string _selectedCommand;
+		public string SelectedCommand
+		{
+			get => _selectedCommand;
+			set => SetProperty(ref _selectedCommand, value);
+		}
 		public string SelectedComPort
 		{
 			get => _selectedComPort;
@@ -62,10 +81,12 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 		{
 			_serialPortService = serialPortService;
 			_serialPortService.DataReceived += SerialPortService_DataReceived;
-
+			AvailableCommands = new ObservableCollection<string>();
+			LoadCommandsFromSettings();
 			AvailableComPorts = new ObservableCollection<string>();
 			ConnectCommand = new RelayCommand(ExecuteConnect, () => !string.IsNullOrEmpty(SelectedComPort));
-			SendCommand = new RelayCommand(ExecuteSend, () => _isConnected);
+			SendCommand = new RelayCommand(ExecuteSend, () => _isConnected && SelectedCommand != null);
+
 			VersionCommand = new RelayCommand(ExecuteVersion, () => _isConnected);
 			TestCommand = new RelayCommand(ExecuteTest, () => _isConnected);
 			_refreshTimer = new Timer(5000) { AutoReset = true };
@@ -78,6 +99,35 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 		{
 			RefreshAvailablePorts();
 			AppendToDisplay("CableTester initialized.");
+		}
+
+
+		private void LoadCommandsFromSettings()
+		{
+			try
+			{
+				AvailableCommands = new ObservableCollection<string>();
+
+				// Get all properties from Settings
+
+				string command = Settings.Default.FlukeQuery;
+
+				if (!string.IsNullOrEmpty(command))
+				{
+					AvailableCommands.Add(command);
+				}
+
+				Console.WriteLine($"Loaded {AvailableCommands.Count} commands"); // Debug output
+
+
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error loading commands from settings: {ex.Message}");
+				AvailableCommands = new ObservableCollection<string>();
+			}
+			OnPropertyChanged(nameof(AvailableCommands)); // Notify UI of changes
+
 		}
 
 		private void RefreshAvailablePorts()
@@ -120,8 +170,13 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 			OnPropertyChanged(nameof(IsNotConnected));
 		}
 
-		private void ExecuteSend() => SendData("show");
-
+		private void ExecuteSend()
+		{
+			if (!string.IsNullOrEmpty(SelectedCommand))
+			{
+				SendData(SelectedCommand);
+			}
+		}
 		private void SendData(string data)
 		{
 			if (_isConnected)
@@ -194,4 +249,5 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 			_serialPortService.DataReceived -= SerialPortService_DataReceived;
 		}
 	}
+
 }
