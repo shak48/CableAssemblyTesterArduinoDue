@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using System.IO;
 using CableAssemblyTesterArduinoDue.Properties;
 using System.Configuration;
+using System.Windows.Controls;
 
 
 
@@ -69,13 +70,33 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 		public string DisplayText
 		{
 			get => _displayText;
-			set => SetProperty(ref _displayText, value);
+			set
+			{
+				if (_displayText != value)
+				{
+					_displayText = value;
+					OnPropertyChanged(nameof(DisplayText));
+					ScrollToEnd();
+				}
+			}
+		}
+		private void ScrollToEnd()
+		{
+			Application.Current.Dispatcher.InvokeAsync(async () =>
+			{
+				var textBox = Application.Current.MainWindow.FindName("DisplayTextBox") as TextBox;
+				if (textBox != null)
+				{
+					// Wait for the UI to update
+					await Task.Delay(10);
+
+					textBox.CaretIndex = textBox.Text.Length;
+					textBox.ScrollToEnd();
+					textBox.Focus();
+				}
+			}, System.Windows.Threading.DispatcherPriority.Background);
 		}
 
-		public ICommand ConnectCommand { get; }
-		public ICommand SendCommand { get; }
-		public ICommand TestCommand { get; }
-		public ICommand VersionCommand { get; }
 
 		public CableTesterViewModel(ISerialPortService serialPortService)
 		{
@@ -84,11 +105,15 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 			AvailableCommands = new ObservableCollection<string>();
 			LoadCommandsFromSettings();
 			AvailableComPorts = new ObservableCollection<string>();
+
 			ConnectCommand = new RelayCommand(ExecuteConnect, () => !string.IsNullOrEmpty(SelectedComPort));
 			SendCommand = new RelayCommand(ExecuteSend, () => _isConnected && SelectedCommand != null);
-
 			VersionCommand = new RelayCommand(ExecuteVersion, () => _isConnected);
 			TestCommand = new RelayCommand(ExecuteTest, () => _isConnected);
+			LearnCommand = new RelayCommand(ExecuteLearn, () => _isConnected);
+			SaveCommand = new RelayCommand(ExecuteSave, () => _isConnected);
+			ShowCommand = new RelayCommand(ExecuteShow, () => _isConnected);
+
 			_refreshTimer = new Timer(5000) { AutoReset = true };
 			_refreshTimer.Elapsed += (_, _) => RefreshAvailablePorts();
 			_refreshTimer.Start();
@@ -98,7 +123,7 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 		private void Initialize()
 		{
 			RefreshAvailablePorts();
-			AppendToDisplay("CableTester initialized.");
+			//AppendToDisplay("CableTester initialized.");
 		}
 
 
@@ -110,15 +135,23 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 
 				// Get all properties from Settings
 
-				string command = Settings.Default.FlukeQuery;
+				string ShowCommand = Settings.Default.CableTesterShow;
+				string DeleteCommand = Settings.Default.CableTesterDelete;
+				string InvalidCommand = Settings.Default.CableTesterInvalid;
+				string SaveCommand = Settings.Default.CableTesterSave;
+				string TestCommand = Settings.Default.CableTesterTest;
+				string LearnCommand = Settings.Default.CableTesterLearn;
+				string VersionCommand = Settings.Default.CableTesterVersion;
 
-				if (!string.IsNullOrEmpty(command))
-				{
-					AvailableCommands.Add(command);
-				}
+				AvailableCommands.Add(ShowCommand);
+				AvailableCommands.Add(DeleteCommand);
+				AvailableCommands.Add(ShowCommand);
+				AvailableCommands.Add(InvalidCommand);
+				AvailableCommands.Add(SaveCommand);
+				AvailableCommands.Add(TestCommand);
+				AvailableCommands.Add(VersionCommand);
 
-				Console.WriteLine($"Loaded {AvailableCommands.Count} commands"); // Debug output
-
+				//Console.WriteLine($"Loaded {AvailableCommands.Count} commands"); // Debug output
 
 			}
 			catch (Exception ex)
@@ -145,6 +178,19 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 			}
 		}
 
+
+
+
+		#region Commands
+		public ICommand ConnectCommand { get; }
+		public ICommand SendCommand { get; }
+		public ICommand ShowCommand { get; }
+		public ICommand VersionCommand { get; }
+		public ICommand LearnCommand { get; }
+		public ICommand SaveCommand { get; }
+		public ICommand TestCommand { get; }
+		public ICommand DeleteCommand { get; }
+
 		private void ExecuteConnect()
 		{
 			if (!_isConnected)
@@ -169,7 +215,6 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 			}
 			OnPropertyChanged(nameof(IsNotConnected));
 		}
-
 		private void ExecuteSend()
 		{
 			if (!string.IsNullOrEmpty(SelectedCommand))
@@ -177,6 +222,63 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 				SendData(SelectedCommand);
 			}
 		}
+		private void ExecuteSend(String command)
+		{
+			if (!string.IsNullOrEmpty(command))
+			{
+				SendData(command);
+			}
+		}
+		private void ExecuteVersion()
+		{
+			String command = Settings.Default.CableTesterVersion;
+			if (!string.IsNullOrEmpty(command))
+			{
+				SendData(command);
+			}
+		}
+		private void ExecuteTest()
+		{
+			String command = Settings.Default.CableTesterTest;
+			if (!string.IsNullOrEmpty(command))
+			{
+				SendData(command);
+			}
+		}
+		private void ExecuteLearn()
+		{
+			String command = Settings.Default.CableTesterLearn;
+			if (!string.IsNullOrEmpty(command))
+			{
+				SendData(command);
+			}
+		}
+		private void ExecuteSave()
+		{
+			String command = Settings.Default.CableTesterSave;
+			if (!string.IsNullOrEmpty(command))
+			{
+				SendData(command);
+			}
+		}
+		private void ExecuteDelete()
+		{
+			String command = Settings.Default.CableTesterDelete;
+			if (!string.IsNullOrEmpty(command))
+			{
+				SendData(command);
+			}
+		}
+		private void ExecuteShow()
+		{
+			String command = Settings.Default.CableTesterShow;
+			if (!string.IsNullOrEmpty(command))
+			{
+				SendData(command);
+			}
+		}
+
+
 		private void SendData(string data)
 		{
 			if (_isConnected)
@@ -196,16 +298,12 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 				AppendToDisplay("Cannot send data: Not connected");
 			}
 		}
-
-		private void ExecuteVersion() => SendData("version");
-
-		private void ExecuteTest() => SendData("test");
+		#endregion
 
 		private void SerialPortService_DataReceived(object? sender, string e)
 		{
 			Application.Current.Dispatcher.Invoke(() => AppendToDisplay(e, true));
 		}
-
 		private void AppendToDisplay(string message, bool isReceived = false)
 		{
 			if (isReceived)
@@ -225,6 +323,9 @@ namespace CableAssemblyTesterArduinoDue.ViewModels
 			}
 			OnPropertyChanged(nameof(DisplayText));
 		}
+
+
+
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 

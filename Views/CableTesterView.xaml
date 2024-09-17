@@ -6,37 +6,74 @@
              xmlns:local="clr-namespace:CableAssemblyTesterArduinoDue.Views"
              xmlns:viewModels="clr-namespace:CableAssemblyTesterArduinoDue.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="600">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
-            <ComboBox ItemsSource="{Binding AvailableComPorts}"
+		<StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+			<ComboBox ItemsSource="{Binding AvailableComPorts}"
                       SelectedItem="{Binding SelectedComPort}"
                       IsEnabled="{Binding IsNotConnected}"
                       Width="120" Height="30" Margin="5"/>
-            <Button Content="{Binding ConnectButtonText}"
+			<Button Content="{Binding ConnectButtonText}"
                     Command="{Binding ConnectCommand}"
                     Width="100" Height="30" Margin="5"/>
-            <ComboBox ItemsSource="{Binding AvailableCommands}"
-          SelectedItem="{Binding SelectedCommand}"
-          DisplayMemberPath="Name"
-          SelectedValuePath="Command"
-          IsEnabled="{Binding IsConnected}"
-          Width="120" Height="30" Margin="5"/>
-            <Button Content="Send"
+			<ComboBox ItemsSource="{Binding AvailableCommands}"
+                      SelectedItem="{Binding SelectedCommand}"
+                      IsEnabled="{Binding IsConnected}"
+                      Width="120" Height="30" Margin="5"/>
+			<Button Content="Send"
                     Command="{Binding SendCommand}"
+                    IsEnabled="{Binding IsConnected}"
                     Width="100" Height="30" Margin="5"/>
-        </StackPanel>
+			<Button Content="Show"
+                    Command="{Binding ShowCommand}"
+                    IsEnabled="{Binding IsConnected}"
+                    Width="100" Height="30" Margin="5"/>
+		</StackPanel>
 
-        <TextBox Grid.Row="1"
-                 Text="{Binding DisplayText, Mode=TwoWay}"
-                 IsReadOnly="True"
-                 TextWrapping="Wrap"
-                 VerticalScrollBarVisibility="Auto"/>
-    </Grid>
+		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+			<Button Content="Test"
+                    Command="{Binding TestCommand}"
+                    IsEnabled="{Binding IsConnected}"
+                    Width="100" Height="30" Margin="5"/>
+			<Button Content="Learn"
+                    Command="{Binding LearnCommand}"
+                    IsEnabled="{Binding IsConnected}"
+                    Width="100" Height="30" Margin="5"/>
+			<Button Content="Delete"
+                    Command="{Binding DeleteCommand}"
+                    IsEnabled="{Binding IsConnected}"
+                    Width="100" Height="30" Margin="5"/>
+			<Button Content="Version"
+                    Command="{Binding VersionCommand}"
+                    IsEnabled="{Binding IsConnected}"
+                    Width="100" Height="30" Margin="5"/>
+		</StackPanel>
+
+		<ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+			<TextBox x:Name="DisplayTextBox"
+					 Text="{Binding DisplayText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+					 IsReadOnly="True"
+					 TextWrapping="Wrap"
+					 VerticalAlignment="Stretch"
+					 HorizontalAlignment="Stretch"
+					 VerticalScrollBarVisibility="Visible">
+				<TextBox.Resources>
+					<Style TargetType="{x:Type TextBox}">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="">
+								<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</TextBox.Resources>
+			</TextBox>
+		</ScrollViewer>
+	</Grid>
 </UserControl>

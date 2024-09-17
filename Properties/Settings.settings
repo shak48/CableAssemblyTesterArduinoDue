@@ -2,8 +2,26 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CableAssemblyTesterArduinoDue.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="FlukeQuery" Type="System.String" Scope="User">
-      <Value Profile="(Default)">*IDN?</Value>
+    <Setting Name="CableTesterShow" Type="System.String" Scope="User">
+      <Value Profile="(Default)">show</Value>
+    </Setting>
+    <Setting Name="CableTesterVersion" Type="System.String" Scope="User">
+      <Value Profile="(Default)">version</Value>
+    </Setting>
+    <Setting Name="CableTesterTest" Type="System.String" Scope="User">
+      <Value Profile="(Default)">test</Value>
+    </Setting>
+    <Setting Name="CableTesterDelete" Type="System.String" Scope="User">
+      <Value Profile="(Default)">delete</Value>
+    </Setting>
+    <Setting Name="CableTesterSave" Type="System.String" Scope="User">
+      <Value Profile="(Default)">save</Value>
+    </Setting>
+    <Setting Name="CableTesterInvalid" Type="System.String" Scope="User">
+      <Value Profile="(Default)">anInvalidCommand</Value>
+    </Setting>
+    <Setting Name="CableTesterLearn" Type="System.String" Scope="User">
+      <Value Profile="(Default)">learn</Value>
     </Setting>
   </Settings>
 </SettingsFile>

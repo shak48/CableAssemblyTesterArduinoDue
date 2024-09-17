@@ -59,5 +59,6 @@ namespace CableAssemblyTesterArduinoDue.Services
 		{
 			Disconnect();
 		}
+
 	}
 }

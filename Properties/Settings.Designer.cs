@@ -25,13 +25,85 @@ namespace CableAssemblyTesterArduinoDue.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("*IDN?")]
-        public string FlukeQuery {
+        [global::System.Configuration.DefaultSettingValueAttribute("show")]
+        public string CableTesterShow {
             get {
-                return ((string)(this["FlukeQuery"]));
+                return ((string)(this["CableTesterShow"]));
             }
             set {
-                this["FlukeQuery"] = value;
+                this["CableTesterShow"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("version")]
+        public string CableTesterVersion {
+            get {
+                return ((string)(this["CableTesterVersion"]));
+            }
+            set {
+                this["CableTesterVersion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("test")]
+        public string CableTesterTest {
+            get {
+                return ((string)(this["CableTesterTest"]));
+            }
+            set {
+                this["CableTesterTest"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("delete")]
+        public string CableTesterDelete {
+            get {
+                return ((string)(this["CableTesterDelete"]));
+            }
+            set {
+                this["CableTesterDelete"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("save")]
+        public string CableTesterSave {
+            get {
+                return ((string)(this["CableTesterSave"]));
+            }
+            set {
+                this["CableTesterSave"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("anInvalidCommand")]
+        public string CableTesterInvalid {
+            get {
+                return ((string)(this["CableTesterInvalid"]));
+            }
+            set {
+                this["CableTesterInvalid"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("learn")]
+        public string CableTesterLearn {
+            get {
+                return ((string)(this["CableTesterLearn"]));
+            }
+            set {
+                this["CableTesterLearn"] = value;
             }
         }
     }
